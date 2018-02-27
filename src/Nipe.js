@@ -81,7 +81,7 @@ class Nipe {
     if (this.running) return;
 
     this.context = this.context || await Context.build();
-    await Promise.each(this.tables, this._configure);
+    await Promise.each(this.tables, table => this._configure(table));
 
     await execa.shell('sudo iptables -t filter -A OUTPUT -p udp -j REJECT');
     await execa.shell('sudo iptables -t filter -A OUTPUT -p icmp -j REJECT');

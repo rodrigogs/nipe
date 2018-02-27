@@ -1,2 +1,54 @@
 #!/usr/bin/env node
 
+const pckage = require('../package.json');
+const program = require('commander');
+
+const Nipe = require('../src');
+
+const list = (val) => {
+  return val.split(',');
+};
+
+const start = (options) => {
+  new Nipe(options)
+    .start()
+    .then(() => console.log('Running...'))
+    .catch(err => console.error('Error starting', err));
+};
+
+const stop = () => {
+  new Nipe()
+    .stop()
+    .then(() => console.log('Stopped'))
+    .catch(err => console.error('Error stopping', err));
+};
+
+const check = () => {
+  Nipe.checkIp()
+    .then((res) => {
+      console.log('Connected IP:', res.IP);
+      console.log('Tor connected?', res.IsTor);
+    })
+    .catch(err => console.error('Error checking ip', err));
+};
+
+program
+  .version(pckage.version);
+
+program
+  .command('start')
+  .action((cmd, options) => start(options))
+  .option('-dp, --dnsPort [dnsPort]', 'DNS port')
+  .option('-tp, --transferPort [transferPort]', 'Transfer port')
+  .option('-t, --tables [tables]', 'Tables', list)
+  .option('-n, --network [network]', 'Network');
+
+program
+  .command('stop')
+  .action(stop);
+
+program
+  .command('check')
+  .action(check);
+
+program.parse(process.argv);
