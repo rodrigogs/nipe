@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+const execa = require('execa');
+const Context = require('../src/Context');
+
+const install = async () => {
+  const context = await Context.build();
+
+  const packagesInstaller = {
+    debian: 'sudo apt-get install tor iptables',
+    arch: 'sudo pacman -S tor iptables',
+    fedora: 'sudo dnf install tor iptables',
+  };
+
+  const installer = packagesInstaller[context.system] || 'sudo pacman -S tor iptables';
+  await execa.shell(installer);
+
+  await execa.shell('sudo wget https://gouveaheitor.github.io/nipe/$operationalSystem/torrc');
+  await execa.shell('sudo mkdir -p /etc/tor');
+  await execa.shell('sudo mv torrc /etc/tor/torrc');
+  await execa.shell('sudo chmod 644 /etc/tor/torrc');
+  await execa.shell('sudo systemctl stop tor');
+};
+
+module.exports = install()
+  .then(() => console.log('Done!'))
+  .catch(err => console.error(err));
